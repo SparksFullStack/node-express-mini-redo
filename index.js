@@ -21,9 +21,9 @@ server.get('/api/users', (req, res) => {
 // GET to /api/users/:id
 server.get('/api/users/:id', (req, res) => {
     const { id } = req.params;
-    if (!id) res.status(400).json({ error: 'There was no ID provided with your request' });
     findById(id)
         .then(response => {
+            console.log(response);
             if (!response[0]){
                 res
                     .status(404)
@@ -54,6 +54,15 @@ server.post('/api/users', (req, res) => {
 })
 
 // DELETE to /api/users/:id
+server.delete('/api/users/:id', (req, res) => {
+    const { id } = req.params;
+    remove(id)
+        .then(response => {
+            if (!response) res.status(404).json({ message: "The user with the specified ID does not exist." });
+            else res.status(202).send("The user was successfully removed!");
+        })
+        .catch(err => res.status(500).json({ error: "The user could not be removed" }));
+})
 
 // PUT to /api/users/:id
 
