@@ -5,7 +5,7 @@ const { find, findById, insert, update, remove } = db;
 const port = process.env.PORT || 3000;
 
 const server = express();
-server.listen(port, () => console.log(`The server is listening on port ${port}`));
+server.use(express.json());
 
 // GET to /api/users
 server.get('/api/users', (req, res) => {
@@ -21,7 +21,7 @@ server.get('/api/users', (req, res) => {
 // GET to /api/users/:id
 server.get('/api/users/:id', (req, res) => {
     const { id } = req.params;
-    if (!id) res.status(404).json({ error: 'There was no ID provided with your request' });
+    if (!id) res.status(400).json({ error: 'There was no ID provided with your request' });
     findById(id)
         .then(response => {
             if (!response[0]){
@@ -40,8 +40,21 @@ server.get('/api/users/:id', (req, res) => {
                 .json({ error: 'The user information could not be retrieved.' });
         })
 })
+
 // POST to /api/users
+server.post('/api/users', (req, res) => {
+    const { name, bio } = req.body;
+    const newUser = { name: name, bio: bio };
+    if (!name || !bio) res.status(400).json({ errorMessage: "Please provide name and bio for the user." });
+    insert(newUser)
+        .then(response => {
+            res.status(201).json(newUser);
+        })
+        .catch(err => res.status(500).json({ error: "There was an error while saving the user to the database" }));
+})
 
 // DELETE to /api/users/:id
 
 // PUT to /api/users/:id
+
+server.listen(port, () => console.log(`The server is listening on port ${port}`));
